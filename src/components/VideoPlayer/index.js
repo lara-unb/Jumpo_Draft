@@ -1,7 +1,7 @@
 import React, { useState, forwardRef } from "react";
 import { Video } from "expo-av";
 import { View } from "react-native";
-import { MaterialIcons, Octicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 import styles from "./styles";
 
