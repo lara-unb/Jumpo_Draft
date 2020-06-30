@@ -6,6 +6,7 @@ import { MaterialIcons, Octicons } from "@expo/vector-icons";
 import styles from "./styles";
 
 export default function VideoPlayer() {
+  // Botões de play, paus e mute
   const [shouldPlay, setShoulPlay] = useState(true);
   const [mute, setMute] = useState(false);
 
