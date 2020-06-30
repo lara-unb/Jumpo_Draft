@@ -1,28 +1,87 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import { Video } from "expo-av";
 import { View } from "react-native";
 import { MaterialIcons, Octicons } from "@expo/vector-icons";
 
 import styles from "./styles";
 
-export default function VideoPlayer() {
-  const [shouldPlay, setShoulPlay] = useState(true);
+export default function VideoPlayer({ uri }) {
+  const [shouldPlay, setShoulPlay] = useState(false);
   const [mute, setMute] = useState(false);
+  const [playbackStatus, setPlaybackStatus] = useState();
+  const [videoRef, setVideoRef] = useState();
+
+  const playVideo = () => {
+    if (videoRef && !shouldPlay) {
+      setShoulPlay(true);
+      videoRef.playAsync();
+    }
+  };
+
+  const pauseVideo = () => {
+    if (videoRef && shouldPlay) {
+      setShoulPlay(false);
+      videoRef.pauseAsync();
+    }
+  };
+
+  const setToFullScreen = () => {
+    if (videoRef) {
+      videoRef.presentFullscreenPlayer();
+    }
+  };
+
+  const myOnPlaybackStatusUpdate = async (playbackStatus) => {
+    await setPlaybackStatus(playbackStatus);
+  };
+
+  const fowardFrame = () => {
+    if (videoRef && playbackStatus) {
+      if (
+        playbackStatus.durationMillis - playbackStatus.positionMillis >
+        2000
+      ) {
+        videoRef.playFromPositionAsync(playbackStatus.positionMillis + 2000);
+      } else {
+        videoRef.playFromPositionAsync(playbackStatus.durationMillis);
+      }
+    }
+  };
+
+  const backwardFrame = () => {
+    if (videoRef && playbackStatus) {
+      if (playbackStatus.positionMillis > 2000) {
+        videoRef.playFromPositionAsync(playbackStatus.positionMillis - 2000);
+      } else {
+        videoRef.playFromPositionAsync(0);
+      }
+    }
+  };
 
   return (
     <>
       <Video
-        source={{
-          uri: "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
-        }}
+        style={styles.video}
+        isMuted={mute}
         rate={1.0}
         volume={1.0}
-        isMuted={false}
+        onPlaybackStatusUpdate={myOnPlaybackStatusUpdate}
+        ref={(ref) => {
+          setVideoRef(ref);
+        }}
         resizeMode="cover"
+        source={{ uri: uri }}
         shouldPlay={shouldPlay}
-        isLooping={false}
+        // source={{
+        //   uri: "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+        // }}
+        // rate={1.0}
+        // volume={1.0}
+        // isMuted={mute}
+        // resizeMode="cover"
+        // shouldPlay={shouldPlay}
+        // isLooping={false}
         // useNativeControls
-        style={styles.video}
       />
       <View style={styles.controlBar}>
         <MaterialIcons

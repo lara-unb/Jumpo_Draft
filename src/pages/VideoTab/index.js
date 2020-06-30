@@ -7,7 +7,7 @@ import styles from "./styles";
 export default function VideoTab() {
   return (
     <View style={styles.container}>
-      <VideoPlayer />
+      <VideoPlayer uri="http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4" />
     </View>
   );
 }
