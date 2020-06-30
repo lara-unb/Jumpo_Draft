@@ -1,7 +1,7 @@
 import React, { useState, forwardRef } from "react";
 import { Video } from "expo-av";
 import { View } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 
 import styles from "./styles";
 
@@ -48,7 +48,7 @@ export default function VideoPlayer({ uri }) {
     }
   };
 
-  const backwardFrame = () => {
+  const banckwardFrame = () => {
     if (videoRef && playbackStatus) {
       if (playbackStatus.positionMillis > 2000) {
         videoRef.playFromPositionAsync(playbackStatus.positionMillis - 2000);
@@ -84,14 +84,21 @@ export default function VideoPlayer({ uri }) {
         // useNativeControls
       />
       <View style={styles.controlBar}>
-        <MaterialIcons
+        <AntDesign
+          name="banckward"
+          size={28}
+          color="white"
+          onPress={banckwardFrame}
+          style={{ paddingRight: 15 }}
+        />
+        {/* <MaterialIcons
           name={mute ? "volume-mute" : "volume-up"}
           size={45}
           color="white"
           onPress={() => {
             setMute(!mute);
           }}
-        />
+        /> */}
         <MaterialIcons
           name={shouldPlay ? "pause" : "play-arrow"}
           size={45}
@@ -99,6 +106,13 @@ export default function VideoPlayer({ uri }) {
           onPress={() => {
             setShoulPlay(!shouldPlay);
           }}
+        />
+        <AntDesign
+          name="forward"
+          size={28}
+          color="white"
+          onPress={fowardFrame}
+          style={{ paddingLeft: 15 }}
         />
       </View>
     </>
