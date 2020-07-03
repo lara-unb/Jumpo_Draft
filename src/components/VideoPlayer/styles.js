@@ -18,4 +18,8 @@ export default StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
+  slider: {
+    width: width - 18,
+    height: 30,
+  },
 });

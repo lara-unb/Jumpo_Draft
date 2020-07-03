@@ -1,6 +1,7 @@
-import React, { useState, forwardRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Video } from "expo-av";
 import { View } from "react-native";
+import Slider from "@react-native-community/slider";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 
 import styles from "./styles";
@@ -10,30 +11,8 @@ export default function VideoPlayer({ uri }) {
   const [mute, setMute] = useState(false);
   const [playbackStatus, setPlaybackStatus] = useState();
   const [videoRef, setVideoRef] = useState();
-
-  const playVideo = () => {
-    if (videoRef && !shouldPlay) {
-      setShoulPlay(true);
-      videoRef.playAsync();
-    }
-  };
-
-  const pauseVideo = () => {
-    if (videoRef && shouldPlay) {
-      setShoulPlay(false);
-      videoRef.pauseAsync();
-    }
-  };
-
-  const setToFullScreen = () => {
-    if (videoRef) {
-      videoRef.presentFullscreenPlayer();
-    }
-  };
-
-  const myOnPlaybackStatusUpdate = async (playbackStatus) => {
-    await setPlaybackStatus(playbackStatus);
-  };
+  const [sliderValue, setSliderValue] = useState(0);
+  const [sliderMaxValue, setSliderMaxValue] = useState(0);
 
   const fowardFrame = () => {
     if (videoRef && playbackStatus) {
@@ -41,9 +20,9 @@ export default function VideoPlayer({ uri }) {
         playbackStatus.durationMillis - playbackStatus.positionMillis >
         2000
       ) {
-        videoRef.playFromPositionAsync(playbackStatus.positionMillis + 2000);
+        videoRef.setPositionAsync(playbackStatus.positionMillis + 2000);
       } else {
-        videoRef.playFromPositionAsync(playbackStatus.durationMillis);
+        videoRef.setPositionAsync(playbackStatus.durationMillis);
       }
     }
   };
@@ -51,10 +30,30 @@ export default function VideoPlayer({ uri }) {
   const banckwardFrame = () => {
     if (videoRef && playbackStatus) {
       if (playbackStatus.positionMillis > 2000) {
-        videoRef.playFromPositionAsync(playbackStatus.positionMillis - 2000);
+        videoRef.setPositionAsync(playbackStatus.positionMillis - 2000);
       } else {
-        videoRef.playFromPositionAsync(0);
+        videoRef.setPositionAsync(0);
       }
+    }
+  };
+
+  const handleSliderChange = (value) => {
+    setShoulPlay(false);
+    setSliderValue(value);
+
+    if (videoRef && playbackStatus) {
+      videoRef.setPositionAsync(sliderValue);
+    }
+  };
+
+  useEffect(() => {
+    if (playbackStatus) setSliderMaxValue(playbackStatus.durationMillis);
+  }, [videoRef]);
+
+  const myOnPlaybackStatusUpdate = async (playbackStatusEvent) => {
+    await setPlaybackStatus(playbackStatusEvent);
+    if (videoRef && playbackStatus) {
+      await setSliderValue(playbackStatus.positionMillis);
     }
   };
 
@@ -72,17 +71,18 @@ export default function VideoPlayer({ uri }) {
         resizeMode="cover"
         source={{ uri: uri }}
         shouldPlay={shouldPlay}
-        // source={{
-        //   uri: "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
-        // }}
-        // rate={1.0}
-        // volume={1.0}
-        // isMuted={mute}
-        // resizeMode="cover"
-        // shouldPlay={shouldPlay}
-        // isLooping={false}
-        // useNativeControls
       />
+
+      <Slider
+        style={styles.slider}
+        minimumValue={0}
+        maximumValue={30000}
+        value={sliderValue}
+        onValueChange={handleSliderChange}
+        minimumTrackTintColor="#FFFFFF"
+        maximumTrackTintColor="#000000"
+      />
+
       <View style={styles.controlBar}>
         <AntDesign
           name="banckward"
@@ -91,14 +91,6 @@ export default function VideoPlayer({ uri }) {
           onPress={banckwardFrame}
           style={{ paddingRight: 15 }}
         />
-        {/* <MaterialIcons
-          name={mute ? "volume-mute" : "volume-up"}
-          size={45}
-          color="white"
-          onPress={() => {
-            setMute(!mute);
-          }}
-        /> */}
         <MaterialIcons
           name={shouldPlay ? "pause" : "play-arrow"}
           size={45}
